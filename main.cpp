@@ -1,7 +1,6 @@
 #include "classAVLTree.h"
 #include "structNode.h"
 #include "structBook.h"
-#include "ChatGPT.h"
 #include <iostream>
 
 using namespace std;
@@ -58,13 +57,6 @@ int main() {
         cout << "Book not found" << endl;
     }
     cout << "Number of nodes: " << avl.countNodes() << endl;
-    
-    /*string apiKey = "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";
-    ChatGPTAPI chatGPT(apiKey);
 
-    string message = "Translate the following English text to French: 'Hello, world.'";
-    string response = chatGPT.sendRequest(message);
-
-    cout << "API Response: " << response << endl;*/
     return 0;
 }

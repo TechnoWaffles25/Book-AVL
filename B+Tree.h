@@ -1,3 +1,5 @@
+// Implementacion del B+ sacado de https://github.com/solangii/b-plus-tree
+
 #ifndef BPlusTree_H
 #define BPlusTree_H
 
@@ -84,6 +86,7 @@ public:
             return nullptr;
         }
     }
+   
     Node<T>* BPlusTreeRangeSearch(Node<T>* node, T key){
         if(node == nullptr) { // if root is null, return nullptr
             return nullptr;
@@ -106,6 +109,7 @@ public:
             return cursor;
         }
     }
+
     int range_search(T start, T end, T* result_data, int arr_length) {
         int index=0;
 
@@ -128,6 +132,7 @@ public:
         }
         return index;
     }
+   
     bool search(T data) {  // Return true if the item exists. Return false if it does not.
         return BPlusTreeSearch(this->root, data) != nullptr;
     }
@@ -146,6 +151,7 @@ public:
         }
         return index;
     }
+    
     T* item_insert(T* arr, T data, int len){
         int index = 0;
         for(int i=0; i<len; i++){
@@ -167,6 +173,7 @@ public:
 
         return arr;
     }
+    
     Node<T>** child_insert(Node<T>** child_arr, Node<T>*child,int len,int index){
         for(int i= len; i > index; i--){
             child_arr[i] = child_arr[i - 1];
@@ -174,6 +181,7 @@ public:
         child_arr[index] = child;
         return child_arr;
     }
+    
     Node<T>* child_item_insert(Node<T>* node, T data, Node<T>* child){
         int item_index=0;
         int child_index=0;
@@ -201,6 +209,7 @@ public:
 
         return node;
     }
+    
     void InsertPar(Node<T>* par,Node<T>* child, T data){
         //overflow check
         Node<T>* cursor = par;
@@ -278,6 +287,7 @@ public:
             }
         }
     }
+    
     void insert(T data) {
         if(this->root == nullptr){ //if the tree is empty
             this->root = new Node<T>(this->degree);
@@ -752,9 +762,11 @@ public:
             delete cursor;
         }
     }
+    
     void bpt_print(){
         print(this->root);
     }
+    
     void print(Node<T>* cursor) {
         // You must NOT edit this function.
         if (cursor != NULL) {

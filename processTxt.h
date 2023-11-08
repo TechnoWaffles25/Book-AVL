@@ -9,8 +9,87 @@
 #include <cctype>
 #include <fstream>
 #include <stdexcept>
+#include <iostream>
 
 using namespace std;
+
+struct TokenPosition {
+    int paragraphIndex;
+    int wordIndex;
+};
+
+struct TokenInfo {
+    std::string token;
+    std::vector<TokenPosition> positions;
+
+    // Less than operator
+    bool operator<(const TokenInfo& other) const {
+        return token < other.token;
+    }
+
+    // Greater than operator
+    bool operator>(const TokenInfo& other) const {
+        return token > other.token;
+    }
+
+    // Less than or equal to operator
+    bool operator<=(const TokenInfo& other) const {
+        return !(*this > other);
+    }
+
+    // Greater than or equal to operator
+    bool operator>=(const TokenInfo& other) const {
+        return !(*this < other);
+    }
+
+    // Equality operator
+    bool operator==(const TokenInfo& other) const {
+        return token == other.token && positions == other.positions;
+    }
+
+    // Not equal operator
+    bool operator!=(const TokenInfo& other) const {
+        return !(*this == other);
+    }
+};
+
+// Overload the << operator to handle TokenPosition objects
+std::ostream& operator<<(std::ostream& os, const TokenPosition& position) {
+    os << "Paragraph: " << position.paragraphIndex << ", Word: " << position.wordIndex;
+    return os;
+}
+
+// Overload the << operator to handle TokenInfo objects
+std::ostream& operator<<(std::ostream& os, const TokenInfo& info) {
+    // Output the token
+    os << info.token;
+
+    // Optionally, output the positions vector
+    if (!info.positions.empty()) {
+        os << " [";
+        for (size_t i = 0; i < info.positions.size(); ++i) {
+            if (i > 0) {
+                os << ", ";
+            }
+            os << info.positions[i];
+        }
+        os << "]";
+    }
+
+    // Return the ostream to allow chaining
+    return os;
+}
+
+bool operator==(const TokenPosition& lhs, const TokenPosition& rhs) {
+    return lhs.paragraphIndex == rhs.paragraphIndex && lhs.wordIndex == rhs.wordIndex;
+}
+
+bool operator<(const TokenPosition& lhs, const TokenPosition& rhs) {
+    if (lhs.paragraphIndex == rhs.paragraphIndex) {
+        return lhs.wordIndex < rhs.wordIndex;
+    }
+    return lhs.paragraphIndex < rhs.paragraphIndex;
+}
 
 class TextProcessing {
 private:
@@ -104,6 +183,75 @@ public:
         file.close();
         return allTokens; // No need to remove stop words again
     }
+
+    // Función modificada para procesar el archivo por párrafos y registrar la posición de los tokens
+    vector<pair<int, vector<TokenInfo>>> tokenizeFileByParagraphs(const string& filepath) const {
+        ifstream file(filepath);
+        if (!file.is_open()) {
+            throw runtime_error("Unable to open file: " + filepath);
+        }
+
+        // Skip the first three lines
+        string line;
+        for (int i = 0; i < 3; ++i) {
+            getline(file, line); // You should handle potential errors here as well
+        }
+
+        vector<pair<int, vector<TokenInfo>>> paragraphs;
+        unordered_map<string, TokenInfo> paragraphTokens;
+        string paragraph;
+        int paragraphIndex = 0;
+
+        while (getline(file, line)) {
+            if (line.empty()) { // Empty lines delimit paragraphs
+                if (!paragraph.empty()) {
+                    vector<TokenInfo> tokensInfo;
+                    vector<string> tokens = processText(paragraph);
+                    int wordIndex = 0;
+                    for (const auto& token : tokens) {
+                        TokenPosition position = {paragraphIndex, wordIndex++};
+                        // If the token is new to this paragraph, initialize TokenInfo
+                        if (paragraphTokens.find(token) == paragraphTokens.end()) {
+                            paragraphTokens[token] = TokenInfo{token};
+                        }
+                        // Add the position of the token to the paragraph's TokenInfo
+                        paragraphTokens[token].positions.push_back(position);
+                    }
+                    // Move the TokenInfo for each token into the tokensInfo vector
+                    for (auto& pair : paragraphTokens) {
+                        tokensInfo.push_back(std::move(pair.second));
+                    }
+                    paragraphs.push_back({paragraphIndex++, tokensInfo});
+                    paragraph.clear();
+                    paragraphTokens.clear(); // Clear the tokens for the new paragraph
+                }
+            } else {
+                paragraph += line + " ";
+            }
+        }
+
+        // Handle the last paragraph if the file doesn't end with a newline
+        if (!paragraph.empty()) {
+            vector<TokenInfo> tokensInfo;
+            vector<string> tokens = processText(paragraph);
+            int wordIndex = 0;
+            for (const auto& token : tokens) {
+                TokenPosition position = {paragraphIndex, wordIndex++};
+                if (paragraphTokens.find(token) == paragraphTokens.end()) {
+                    paragraphTokens[token] = TokenInfo{token};
+                }
+                paragraphTokens[token].positions.push_back(position);
+            }
+            for (auto& pair : paragraphTokens) {
+                tokensInfo.push_back(std::move(pair.second));
+            }
+            paragraphs.push_back({paragraphIndex, tokensInfo});
+        }
+
+        file.close();
+        return paragraphs;
+    }
+
 };
 
 #endif

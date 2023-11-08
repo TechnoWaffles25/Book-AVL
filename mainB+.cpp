@@ -14,29 +14,49 @@ void print_bool(bool cond) {
 
 int main() {
 
+    // Esto deberia venir del preliminar 1 
     std::vector<std::string> files;
     files.push_back("Books/AliceInWonderland.txt");
     //files.push_back("Books/ATaleOfTwoCities.txt");
-    BPlusTree<std::string> bpt(50);
 
+    BPlusTree<TokenInfo> bpt(50); // Assuming your B+ Tree is now templated to handle TokenInfo objects
     TextProcessing tp;
-    std::unordered_set<std::string> stopWords = {
-        "the", "a", "an", "and", "or", "but", "is", "are", "was", "were", 
-        "of", "at", "for", "with", "in", "on", "to"
-    };
 
+    // Load stop words (provided by ChatGPT or loaded from a file)
+    std::unordered_set<std::string> stopWords = {
+        //... Your stop words
+    };
     tp.setStopWords(stopWords);
-    for(const auto& file : files){
-        auto tokens = tp.tokenizeFileFromLine4(file);
-        for(const auto& token : tokens){
-            bpt.insert(token);
+
+    // Loop through the files
+    int fileIndex = 0;
+    for (const auto& file : files) {
+        auto paragraphs = tp.tokenizeFileByParagraphs(file);
+        for (const auto& paragraphPair : paragraphs) {
+            int paragraphIndex = paragraphPair.first;
+            for (const auto& tokenInfo : paragraphPair.second) {
+                // Now, we have tokenInfo which contains the token and its positions
+                bpt.insert(tokenInfo); // We insert the entire TokenInfo object into the B+ tree
+            }
         }
+        fileIndex++; // Increment file index for next file
     }
 
     std::cout<<std::endl;
-    bpt.bpt_print();
+    //bpt.bpt_print();
 
-    std::string phrase = "Off with their heads!";
+    // Example for searching a single word using the B+ tree
+    std::string wordToSearch = "heads"; // Example word, after processing the phrase
+
+    // Process the word to fit the format stored in the B+ tree
+    TokenInfo searchKey;
+    searchKey.token = wordToSearch;
+    if(bpt.search(searchKey)) {
+        std::cout << "The word '" << wordToSearch << "' was found!" << std::endl;
+    } else {
+        std::cout << "The word '" << wordToSearch << "' was not found." << std::endl;
+    }
+    /*std::string phrase = "Off with their heads!";
     auto phraseTokens = tp.processText(phrase);
     for (string token : phraseTokens) {
         cout << "Phrase tokens: " << token << endl;
@@ -68,92 +88,5 @@ int main() {
     // Print the ranked files
     for (const auto& file : sortedFiles) {
         std::cout << "File: " << file.first << ", Score: " << file.second << std::endl;
-    }
-//    std::cout<<std::endl<<std::endl;
-
-
-//    int* result_array = new int[8];
-//    int result = bpt.range_search(150, 240, result_array, 8);
-//
-//    std::cout << result << '\n'; // 8
-//
-//    for (int i = 0; i < result; i++) {
-//        std::cout << result_array[i] << ' ';
-//    }
-//    std::cout << '\n'; // 5, 6, 10*/
-
- /*  bpt.remove(152);
-    bpt.remove(269);
-    bpt.remove(256);
-
-
-    std::cout<<"ㄴㄴㄴ"<<std::endl;
-    bpt.remove(467);
-    bpt.bpt_print();
-
-//    bpt.remove(217);
-
-//
-//    std::cout<<std::endl;
-//    bpt.bpt_print();
-    std::cout<<std::endl<<std::endl;
-    bpt.remove(764);
-    bpt.remove(863);
-
-    std::cout<<std::endl;
-//    bpt.getroot();
-    bpt.bpt_print();
-
-    bpt.remove(71);
-    bpt.remove(100);
-    bpt.remove(139);
-
-    std::cout<<std::endl;
-    bpt.bpt_print();
-
-    bpt.remove(368);
-
-
-    std::cout<<std::endl;
-    bpt.bpt_print();
-
-
-*/
-
-//
-//
-//
-//
-//    BPlusTree<int> bpt(3);
-//    bpt.insert(1);
-//    bpt.insert(2);
-//    bpt.insert(3);
-//    bpt.insert(4);
-//    bpt.insert(5);
-//
-//    print_bool(bpt.search(2)); // True
-//    print_bool(bpt.search(42)); // False
-//
-//
-//    bpt.remove(3);
-//
-//    bpt.bpt_print();
-//
-//    print_bool(bpt.search(3)); // False
-//
-//    bpt.insert(6);
-//    bpt.insert(10);
-//    std::cout << '\n';
-//    bpt.bpt_print();
-//
-//    std::cout << '\n';
-//
-//    int* result_array = new int[3];
-//    int result = bpt.range_search(3, 7, result_array, 3);
-//
-//    std::cout << result << '\n'; // 3
-//    for (int i = 0; i < result; i++) {
-//        std::cout << result_array[i] << ' ';
-//    }
-//    std::cout << '\n'; // 5, 6, 10
+    }*/
 }
