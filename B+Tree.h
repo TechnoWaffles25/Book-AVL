@@ -44,7 +44,7 @@ class BPlusTree {
     std::size_t degree;
 
 public:
-    BPlusTree(std::size_t _degree) {// Constructor
+    BPlusTree(std::size_t _degree) { // Constructor
         this->root = nullptr;
         this->degree = _degree;
     }
@@ -57,28 +57,26 @@ public:
     }
 
     Node<T>* BPlusTreeSearch(Node<T>* node, T key){
-        if(node == nullptr) { // if root is null, return nullptr
+        if(node == nullptr) {
             return nullptr;
-        }
-        else{
-            Node<T>* cursor = node; // cursor finding key
+        } else {
+            Node<T>* cursor = node;
 
-            while(!cursor->is_leaf){ // until cusor pointer arrive leaf
-                for(int i=0; i<cursor->size; i++){ //in this index node, find what we want key
-                    if(key < cursor->item[i]){ //find some range, and let find their child also.
+            while(!cursor->is_leaf){
+                for(int i = 0; i < cursor->size; i++){
+                    if(key.token < cursor->item[i].token){ 
                         cursor = cursor->children[i];
                         break;
                     }
-                    if(i == (cursor->size)-1){
-                        cursor = cursor->children[i+1];
+                    if(i == cursor->size - 1){
+                        cursor = cursor->children[i + 1];
                         break;
                     }
                 }
             }
 
-            //search for the key if it exists in leaf node.
-            for(int i=0; i<cursor->size; i++){
-                if(cursor->item[i] == key){
+            for(int i = 0; i < cursor->size; i++){
+                if(cursor->item[i].token == key.token){
                     return cursor;
                 }
             }
@@ -86,22 +84,21 @@ public:
             return nullptr;
         }
     }
-   
-    Node<T>* BPlusTreeRangeSearch(Node<T>* node, T key){
-        if(node == nullptr) { // if root is null, return nullptr
-            return nullptr;
-        }
-        else{
-            Node<T>* cursor = node; // cursor finding key
 
-            while(!cursor->is_leaf){ // until cusor pointer arrive leaf
-                for(int i=0; i<cursor->size; i++){ //in this index node, find what we want key
-                    if(key < cursor->item[i]){ //find some range, and let find their child also.
+    Node<T>* BPlusTreeRangeSearch(Node<T>* node, T key){
+        if(node == nullptr) {
+            return nullptr;
+        } else {
+            Node<T>* cursor = node;
+
+            while(!cursor->is_leaf){
+                for(int i = 0; i < cursor->size; i++){
+                    if(key.token < cursor->item[i].token){
                         cursor = cursor->children[i];
                         break;
                     }
-                    if(i == (cursor->size)-1){
-                        cursor = cursor->children[i+1];
+                    if(i == cursor->size - 1){
+                        cursor = cursor->children[i + 1];
                         break;
                     }
                 }
@@ -109,6 +106,7 @@ public:
             return cursor;
         }
     }
+
 
     int range_search(T start, T end, T* result_data, int arr_length) {
         int index=0;

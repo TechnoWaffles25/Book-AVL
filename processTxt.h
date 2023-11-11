@@ -251,7 +251,6 @@ public:
         file.close();
         return paragraphs;
     }
-
 };
 
 #endif

@@ -17,7 +17,6 @@ int main() {
     // Esto deberia venir del preliminar 1 
     std::vector<std::string> files;
     files.push_back("Books/AliceInWonderland.txt");
-    //files.push_back("Books/ATaleOfTwoCities.txt");
 
     BPlusTree<TokenInfo> bpt(50); // Assuming your B+ Tree is now templated to handle TokenInfo objects
     TextProcessing tp;
@@ -45,48 +44,26 @@ int main() {
     std::cout<<std::endl;
     //bpt.bpt_print();
 
-    // Example for searching a single word using the B+ tree
-    std::string wordToSearch = "heads"; // Example word, after processing the phrase
+    // Ejemplo para buscar una frase usando el árbol B+
+    std::string phraseToSearch = "off with their heads!"; // Ejemplo de frase
 
-    // Process the word to fit the format stored in the B+ tree
-    TokenInfo searchKey;
-    searchKey.token = wordToSearch;
-    if(bpt.search(searchKey)) {
-        std::cout << "The word '" << wordToSearch << "' was found!" << std::endl;
-    } else {
-        std::cout << "The word '" << wordToSearch << "' was not found." << std::endl;
-    }
-    /*std::string phrase = "Off with their heads!";
-    auto phraseTokens = tp.processText(phrase);
-    for (string token : phraseTokens) {
-        cout << "Phrase tokens: " << token << endl;
-    }
+    // Procesar la frase para ajustarla al formato almacenado en el árbol B+
+    std::vector<std::string> tokens = tp.tokenize(phraseToSearch); // Asumiendo que tienes un método para tokenizar frases
 
-    // Create a map to store the TF-IDF score for each file
-    std::map<std::string, double> fileScores;
-
-    // Calculate the TF-IDF score for each file
-    for (const auto& file : files) {
-        auto tokens = tp.tokenizeFileFromLine4(file);
-        cout << "Tokens: " << tokens.size() << endl;
-        double score = 0.0;
-        for (const auto& token : phraseTokens) {
-            // Calculate the TF-IDF score for the token
-            double tf = std::count(tokens.begin(), tokens.end(), token);
-            double idf = std::log(static_cast<double>(files.size()) / (bpt.search(token) ? 1.0 : 0.0));
-            score += tf * idf;
+    bool allTokensFound = true;
+    for (const auto& token : tokens) {
+        std::cout << "Searching for token: " << token << std::endl;
+        TokenInfo searchKey;
+        searchKey.token = token;
+        if (!bpt.search(searchKey)) {
+            allTokensFound = false;
+            std::cout << "El token '" << token << "' no fue encontrado." << std::endl;
         }
-        fileScores[file] = score;
     }
 
-    // Sort the files by their TF-IDF scores in descending order
-    std::vector<std::pair<std::string, double>> sortedFiles(fileScores.begin(), fileScores.end());
-    std::sort(sortedFiles.begin(), sortedFiles.end(), [](const auto& a, const auto& b) {
-        return a.second > b.second;
-    });
-
-    // Print the ranked files
-    for (const auto& file : sortedFiles) {
-        std::cout << "File: " << file.first << ", Score: " << file.second << std::endl;
-    }*/
+    if (allTokensFound) {
+        std::cout << "Todos los tokens de la frase fueron encontrados en el arbol B+." << std::endl;
+    } else {
+        std::cout << "No todos los tokens de la frase fueron encontrados en el arbol B+." << std::endl;
+    }
 }
