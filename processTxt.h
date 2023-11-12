@@ -11,47 +11,10 @@
 #include <stdexcept>
 #include <iostream>
 
+#include "token.h"
+
 using namespace std;
 
-struct TokenPosition {
-    int paragraphIndex;
-    int wordIndex;
-};
-
-struct TokenInfo {
-    std::string token;
-    std::vector<TokenPosition> positions;
-
-    // Less than operator
-    bool operator<(const TokenInfo& other) const {
-        return token < other.token;
-    }
-
-    // Greater than operator
-    bool operator>(const TokenInfo& other) const {
-        return token > other.token;
-    }
-
-    // Less than or equal to operator
-    bool operator<=(const TokenInfo& other) const {
-        return !(*this > other);
-    }
-
-    // Greater than or equal to operator
-    bool operator>=(const TokenInfo& other) const {
-        return !(*this < other);
-    }
-
-    // Equality operator
-    bool operator==(const TokenInfo& other) const {
-        return token == other.token && positions == other.positions;
-    }
-
-    // Not equal operator
-    bool operator!=(const TokenInfo& other) const {
-        return !(*this == other);
-    }
-};
 
 // Overload the << operator to handle TokenPosition objects
 std::ostream& operator<<(std::ostream& os, const TokenPosition& position) {

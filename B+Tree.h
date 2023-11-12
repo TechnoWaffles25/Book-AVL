@@ -1,8 +1,8 @@
 // Implementacion del B+ sacado de https://github.com/solangii/b-plus-tree
-
 #ifndef BPlusTree_H
 #define BPlusTree_H
 
+#include "token.h"
 #include <iostream>
 
 template <typename T>
@@ -56,7 +56,7 @@ public:
         return this->root;
     }
 
-    Node<T>* BPlusTreeSearch(Node<T>* node, T key){
+    TokenInfo* BPlusTreeSearch(Node<T>* node, T key){
         if(node == nullptr) {
             return nullptr;
         } else {
@@ -75,9 +75,9 @@ public:
                 }
             }
 
-            for(int i = 0; i < cursor->size; i++){
-                if(cursor->item[i].token == key.token){
-                    return cursor;
+            for (int i = 0; i < cursor->size; i++) {
+                if (cursor->item[i].token == key.token) {
+                    return &cursor->item[i]; // Devuelve el puntero al TokenInfo encontrado
                 }
             }
 
@@ -131,8 +131,8 @@ public:
         return index;
     }
    
-    bool search(T data) {  // Return true if the item exists. Return false if it does not.
-        return BPlusTreeSearch(this->root, data) != nullptr;
+    TokenInfo* search(T data) {
+        return BPlusTreeSearch(this->root, data);
     }
 
     int find_index(T* arr, T data, int len){
@@ -148,6 +148,43 @@ public:
             }
         }
         return index;
+    }
+
+    std::vector<TokenInfo*> BPlusTreeSearchAll(Node<T>* node, T key) {
+        std::vector<TokenInfo*> results;
+
+        if (node == nullptr) {
+            return results;
+        }
+
+        // Encuentra el primer nodo hoja que contiene el token
+        Node<T>* cursor = node;
+        while (!cursor->is_leaf) {
+            for (int i = 0; i < cursor->size; i++) {
+                if (key.token < cursor->item[i].token) {
+                    cursor = cursor->children[i];
+                    break;
+                }
+                if (i == cursor->size - 1) {
+                    cursor = cursor->children[i + 1];
+                    break;
+                }
+            }
+        }
+
+        // Recorre los elementos del nodo hoja y recopila todas las instancias del token
+        for (int i = 0; i < cursor->size; i++) {
+            if (cursor->item[i].token == key.token) {
+                results.push_back(&cursor->item[i]);
+            }
+        }
+
+        return results;
+    }
+
+
+    std::vector<TokenInfo*> searchAll(T data) {
+        return BPlusTreeSearchAll(this->root, data);
     }
     
     T* item_insert(T* arr, T data, int len){
