@@ -9,17 +9,16 @@
 #include <algorithm>
 
 int main() {
-    // Esto deberia venir del preliminar 1 
+    // Esto deberia venir del preliminar 1, todas las rutas de los archivos a procesar
     std::vector<std::string> files;
     files.push_back("Books/AliceInWonderland.txt");
 
-    BPlusTree<TokenInfo> bpt(50); // Assuming your B+ Tree is now templated to handle TokenInfo objects
+    // Crear un arbol B+ con un orden de 50
+    BPlusTree<TokenInfo> bpt(50);
     TextProcessing tp;
 
-    // Load stop words (provided by ChatGPT or loaded from a file)
-    std::unordered_set<std::string> stopWords = {
-        //... Your stop words
-    };
+    // Cargamos Stop Words
+    std::unordered_set<std::string> stopWords = {/* Stop Words*/};
     tp.setStopWords(stopWords);
 
     // Loop through the files
@@ -33,10 +32,11 @@ int main() {
     }
 
     // Ejemplo para buscar una frase usando el árbol B+
-    std::string phraseToSearch = "Alice"; // Ejemplo de frase
-    std::vector<std::string> tokens = tp.tokenize(phraseToSearch, true); // Tokenize the phrase
-    std::vector <TokenInfo*> foundTokenInfos;
+    std::string phraseToSearch = "fighting for hedgehogs";
+    std::vector<std::string> tokens = tp.tokenize(phraseToSearch, true); // Tokenizamos la frase de igual manera que el parrafo
+    std::vector <TokenInfo*> foundTokenInfos; // Vector de punteros a TokenInfo
     bool allTokensFound = true;
+
     for (const auto& token : tokens) {
         std::cout << "Buscando el token: " << token << std::endl;
         foundTokenInfos = bpt.searchAll(TokenInfo{token, {}});
@@ -61,8 +61,8 @@ int main() {
         std::cout << "No todos los tokens de la frase fueron encontrados en el arbol B+." << std::endl;
     }
 
+    // Logica de puntuacion de parrafos
     std::map<int, ParagraphScore> paragraphScores;
-    
     for (TokenInfo* tokenInfo : foundTokenInfos) {
         for (const auto& position : tokenInfo->positions) {
             // Verificar si el ParagraphScore ya existe para este índice de párrafo
@@ -77,11 +77,10 @@ int main() {
         }
     }
 
-
     // Calcular puntuaciones para cada párrafo
     for (auto& pair : paragraphScores) {
         ParagraphScore& score = pair.second;
-        score.calculateScore(tokens); // Asegúrate de que esta función está definida en ParagraphScore
+        score.calculateScore(tokens);
     }
 
     // Transferir a un vector para ordenar
