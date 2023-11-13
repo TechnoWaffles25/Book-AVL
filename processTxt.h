@@ -79,12 +79,14 @@ public:
         file.close();
     }
 
-    vector<string> tokenize(const string& text) const {
+    vector<string> tokenize(const string& text, bool keepPunctuation = false) const {
         vector<string> tokens;
         istringstream iss(text);
         string token;
         while (iss >> token) {
-            token = removePunctuation(token);
+            if (!keepPunctuation) {
+                token = removePunctuation(token);
+            }
             if (!token.empty()) {
                 tokens.push_back(token);
             }
@@ -169,7 +171,8 @@ public:
             if (line.empty()) { // Empty lines delimit paragraphs
                 if (!paragraph.empty()) {
                     vector<TokenInfo> tokensInfo;
-                    vector<string> tokens = processText(paragraph);
+                    // Tokenize the paragraph with punctuation
+                    vector<string> tokens = tokenize(paragraph, true); 
                     int wordIndex = 0;
                     for (const auto& token : tokens) {
                         TokenPosition position = {paragraphIndex, wordIndex++};
@@ -196,7 +199,7 @@ public:
         // Handle the last paragraph if the file doesn't end with a newline
         if (!paragraph.empty()) {
             vector<TokenInfo> tokensInfo;
-            vector<string> tokens = processText(paragraph);
+            vector<string> tokens = tokenize(paragraph, true); // Tokenize with punctuation
             int wordIndex = 0;
             for (const auto& token : tokens) {
                 TokenPosition position = {paragraphIndex, wordIndex++};
@@ -214,6 +217,7 @@ public:
         file.close();
         return paragraphs;
     }
+
 };
 
 #endif

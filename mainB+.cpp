@@ -33,8 +33,8 @@ int main() {
     }
 
     // Ejemplo para buscar una frase usando el árbol B+
-    std::string phraseToSearch = "“Off with his head!”"; // Ejemplo de frase
-    std::vector<std::string> tokens = tp.tokenize(phraseToSearch); // Tokenize the phrase
+    std::string phraseToSearch = "Alice"; // Ejemplo de frase
+    std::vector<std::string> tokens = tp.tokenize(phraseToSearch, true); // Tokenize the phrase
     std::vector <TokenInfo*> foundTokenInfos;
     bool allTokensFound = true;
     for (const auto& token : tokens) {

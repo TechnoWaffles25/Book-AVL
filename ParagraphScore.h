@@ -17,14 +17,15 @@ struct ParagraphScore {
 
     void calculateScore(const std::vector<std::string>& searchTokens) {
         if (tokenInfos.empty()) {
-            return; // No hay tokens para calcular la puntuación
+            return; // No tokens to calculate score for
         }
 
-        int orderMatchCount = 0;
+        int matchCount = 0;
         int lastWordIndex = -1;
         int totalDistance = 0;
 
         for (const auto& searchToken : searchTokens) {
+            bool tokenFound = false;
             for (const auto& tokenInfo : tokenInfos) {
                 if (tokenInfo->token == searchToken) {
                     for (const auto& position : tokenInfo->positions) {
@@ -33,21 +34,26 @@ struct ParagraphScore {
                                 totalDistance += abs(position.wordIndex - lastWordIndex);
                             }
                             lastWordIndex = position.wordIndex;
-                            orderMatchCount++;
+                            matchCount++;
+                            tokenFound = true;
                             break;
                         }
                     }
-                    break;
+                    if (tokenFound) {
+                        break;
+                    }
                 }
             }
         }
 
-        if (orderMatchCount == searchTokens.size()) {
-            // Todas las palabras están en el orden correcto
-            score = 100.0 / (1 + totalDistance); // Ejemplo de cálculo de puntuación
+        if (matchCount > 0) {
+            // Give a score based on the number of matches and the total distance between them
+            score = (double)matchCount / searchTokens.size() * 100.0 / (1 + totalDistance);
         } else {
-            score = 0.0; // No todas las palabras están en el orden correcto
+            score = 0.0; // No matches found
         }
     }
+
+
 };
 #endif
